@@ -59,9 +59,7 @@ func main() {
 		msg := update.Message
 		if msg == nil {
 			continue
-		}
-
-		if msg.IsCommand() {
+		} else if msg.IsCommand() {
 			command := msg.Command()
 
 			switch command {
@@ -70,5 +68,4 @@ func main() {
 			}
 		}
 	}
-
 }
