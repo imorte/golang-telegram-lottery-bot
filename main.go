@@ -29,7 +29,7 @@ func init() {
 	gdb.LogMode(true)
 
 	gdb.AutoMigrate(
-		&Users{},
+		&User{},
 		&Info{},
 	)
 
@@ -63,8 +63,34 @@ func main() {
 			command := msg.Command()
 
 			switch command {
-			case "/reg":
+				// Регистрация
+			case "start":
 				reg(msg, update)
+				// Старт лотореи
+			case "begin":
+				if checkAdminAccess(msg) {
+					start(msg, update)
+				}
+				// Стоп
+			case "finish":
+				if checkAdminAccess(msg) {
+					stop(msg, update)
+				}
+				// Список участников
+			case "list":
+				if checkAdminAccess(msg) {
+					list(msg)
+				}
+				// Разыграть
+			case "startLottery":
+				if checkAdminAccess(msg) {
+					startLottery(msg)
+				}
+				// Сообщение победителям
+			case "winners":
+				if checkAdminAccess(msg) {
+					messageToWinners(msg)
+				}
 			}
 		}
 	}
