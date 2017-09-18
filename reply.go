@@ -4,6 +4,10 @@ import (
 	"gopkg.in/telegram-bot-api.v4"
 	//"strings"
 	"strings"
+	"strconv"
+	//"log"
+	//"log"
+	"log"
 )
 
 func reg(msg *tgbotapi.Message, update tgbotapi.Update) {
@@ -27,6 +31,7 @@ func reg(msg *tgbotapi.Message, update tgbotapi.Update) {
 			gdb.Model(&users).Update(User{
 				UserId: msg.From.ID,
 				Username: msg.From.UserName,
+				UserNick: msg.From.FirstName + " " + msg.From.LastName,
 				IsWinner: false,
 			})
 			textReply = "Вы зарегестрировались! Если вы выиграете, мы с Вами свяжемся!"
@@ -126,8 +131,8 @@ func startLottery(msg *tgbotapi.Message) {
 
 		output = "Выбраны победители!\n"
 		gdb.Where("is_winner = ?", true).Find(&winners)
-		for _, i := range winners {
-			output += "@" + i.Username + "\n"
+		for count, i := range winners {
+			output += strconv.Itoa(count + 1) + ". " +  i.UserNick + " " + "(@" + i.Username + ")\n"
 		}
 
 		bot.Send(tgbotapi.NewMessage(msg.Chat.ID, output))
@@ -135,16 +140,48 @@ func startLottery(msg *tgbotapi.Message) {
 }
 
 func messageToWinners(msg *tgbotapi.Message) {
+	var reply tgbotapi.MessageConfig
+	var winnersId []string
+	var text string
 	message := msg.Text
-	var result string
-	strSplit := strings.Split(message, " ")
-	length := len(strSplit)
-	cnt := 1
+	cnt := 0
 
-	for cnt < length {
-		result += strSplit[cnt] + " "
-		cnt++
+	explodedWinners := strings.Split(message, " ")
+
+	for _, x := range explodedWinners {
+		if _, err := strconv.Atoi(x); err != nil {
+			if cnt != 0 {
+				text += x + " "
+			}
+			cnt++
+		} else {
+			winnersId = append(winnersId, x)
+		}
 	}
 
-	sendMessageForAll(result)
+	for _, x := range winnersId {
+		var winner User
+		gdb.Where("id = ?", x).First(&winner)
+		reply = tgbotapi.NewMessage(int64(winner.UserId), text)
+		_, err := bot.Send(reply)
+		if err != nil {
+			log.Println(err)
+		}
+	}
+
+	bot.Send(tgbotapi.NewMessage(msg.Chat.ID, "Поздравления отправлены!"))
+}
+
+func regstop(msg *tgbotapi.Message) {
+	var info Info
+
+	gdb.Model(&info).Where("id = ?", 1).UpdateColumn("active", false)
+	bot.Send(tgbotapi.NewMessage(msg.Chat.ID, "Регистрация приостановлена"))
+}
+
+func regstart(msg *tgbotapi.Message) {
+	var info Info
+
+	gdb.Model(&info).Where("id = ?", 1).UpdateColumn("active", true)
+	bot.Send(tgbotapi.NewMessage(msg.Chat.ID, "Регистрация возобновлена"))
 }

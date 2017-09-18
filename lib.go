@@ -4,7 +4,6 @@ import (
 	"gopkg.in/telegram-bot-api.v4"
 	"time"
 	"math/rand"
-	"log"
 )
 
 func checkAdminAccess(msg *tgbotapi.Message) bool {
@@ -48,15 +47,3 @@ func uniqueRandom(random int, count int) []int {
 	return result
 }
 
-func sendMessageForAll(message string) {
-	var users []User
-	gdb.Where("is_winner = ?", true).Find(&users)
-	var reply tgbotapi.MessageConfig
-	for _, i := range users {
-		reply = tgbotapi.NewMessage(int64(i.UserId), message)
-		_, err := bot.Send(reply)
-		if err != nil {
-			log.Println(err)
-		}
-	}
-}

@@ -5,6 +5,7 @@ type User struct {
 	UserId   int    `gorm:"column:userId"`
 	Username string `gorm:"type:TEXT;column:userName"`
 	IsWinner bool   `gorm:"column:is_winner"`
+	UserNick string `gorm:"type:TEXT;column:userNick"`
 }
 
 func (User) TableName() string {

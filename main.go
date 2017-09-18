@@ -91,6 +91,14 @@ func main() {
 				if checkAdminAccess(msg) {
 					messageToWinners(msg)
 				}
+			case "regstop":
+				if checkAdminAccess(msg) {
+					regstop(msg)
+				}
+			case "regstart":
+				if checkAdminAccess(msg) {
+					regstart(msg)
+				}
 			}
 		}
 	}
