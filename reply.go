@@ -93,7 +93,7 @@ func list(msg *tgbotapi.Message) {
 
 	if len(users) != 0 {
 		for _, i := range users {
-			output += "@" + i.Username + "\n"
+			output += strconv.Itoa(i.Id) + ". " +  i.UserNick + " " + "(@" + i.Username + ")\n"
 		}
 		bot.Send(tgbotapi.NewMessage(msg.Chat.ID, output))
 	} else {
@@ -115,6 +115,11 @@ func startLottery(msg *tgbotapi.Message) {
 
 	if infoCheck.IsReady == true {
 		bot.Send(tgbotapi.NewMessage(msg.Chat.ID, "Победители уже определены!"))
+		gdb.Where("is_winner = ?", true).Find(&winners)
+		for _, i := range winners {
+			output += strconv.Itoa(i.Id) + ". " +  i.UserNick + " " + "(@" + i.Username + ")\n"
+		}
+		bot.Send(tgbotapi.NewMessage(msg.Chat.ID, output))
 	} else {
 		if len(users) < winnersCount {
 			winnersCount = len(users)
@@ -131,8 +136,8 @@ func startLottery(msg *tgbotapi.Message) {
 
 		output = "Выбраны победители!\n"
 		gdb.Where("is_winner = ?", true).Find(&winners)
-		for count, i := range winners {
-			output += strconv.Itoa(count + 1) + ". " +  i.UserNick + " " + "(@" + i.Username + ")\n"
+		for _, i := range winners {
+			output += strconv.Itoa(i.Id) + ". " +  i.UserNick + " " + "(@" + i.Username + ")\n"
 		}
 
 		bot.Send(tgbotapi.NewMessage(msg.Chat.ID, output))
