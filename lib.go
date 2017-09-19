@@ -12,7 +12,6 @@ func checkAdminAccess(msg *tgbotapi.Message) bool {
 	gdb.Where("id = ?", 1).First(&info)
 
 	if msg.From.UserName != info.Admin {
-		print(msg.From.UserName)
 		bot.Send(tgbotapi.NewMessage(msg.Chat.ID, "Увы, но вы не можете выполнить эту команду"))
 		return false
 	} else {
